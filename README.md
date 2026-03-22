@@ -1,11 +1,16 @@
 # NYT CLInnections
 
+![alt text](cover.png)
+
 The daily NYT Connections puzzle, right from your command line!
 
 ## How to play
 
 - `cargo run` to play in online mode
 - `cargo run -- <puzzle>.json` to play in offline mode
+
+Use the arrow keys to navigate, `Space` to select a tile, `Enter` to attempt
+a connection, `Q` to quit, and `R` to reset the game.
 
 ## Offline mode
 
@@ -17,7 +22,7 @@ under `examples/`.
 {
     "connections": [
         {
-            "color": "Yellow" | "Green" | "Blue" | "Purple",
+            "color": "Color", // Out of "Yellow", "Green", "Blue", "Purple"
             "words": [
                 "Word1",
                 ...
@@ -26,6 +31,6 @@ under `examples/`.
         },
         ...
     ],
-    "seed": 42 # Determines the word ordering
+    "seed": 42 // Determines the word ordering
 }
 ```

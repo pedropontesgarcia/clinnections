@@ -174,6 +174,7 @@ impl Widget for &App {
                         .padding(Padding::top(vertical_margin))
                         .bg(Color::from_u32(color)),
                 )
+                .fg(Color::Black)
                 .centered()
                 .render(cell, buf);
             if self.hovered == i {}
