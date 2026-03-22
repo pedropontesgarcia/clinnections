@@ -1,0 +1,45 @@
+{
+    "connections": [
+        {
+            "color": "Yellow",
+            "words": [
+                "FLOWER",
+                "COLOGNE",
+                "CANDLE",
+                "FRESHENER"
+            ],
+            "hint": "SCENTED"
+        },
+        {
+            "color": "Green",
+            "words": [
+                "TANK",
+                "PUMP",
+                "BOTTLE",
+                "GUN"
+            ],
+            "hint": "WATER + ____"
+        },
+        {
+            "color": "Blue",
+            "words": [
+                "DRESDEN",
+                "TOKYO",
+                "GUERNICA",
+                "LONDON"
+            ],
+            "hint": "FAMOUS FIREBOMBING TARGETS"
+        },
+        {
+            "color": "Purple",
+            "words": [
+                "MARMADUKE",
+                "PARKING",
+                "PEARL",
+                "DISCOUNT"
+            ],
+            "hint": "END WITH NOBILITY TITLES"
+        }
+    ],
+    "seed": 86876
+}
