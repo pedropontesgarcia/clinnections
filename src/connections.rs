@@ -1,4 +1,3 @@
-use color_eyre::owo_colors::colors::Yellow;
 use rand::{SeedableRng, rngs::StdRng, seq::SliceRandom};
 use serde::{Deserialize, Serialize};
 
