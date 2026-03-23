@@ -12,8 +12,9 @@ use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
     DefaultTerminal, Frame,
     buffer::Buffer,
-    layout::{Constraint, Flex, Layout, Rect},
+    layout::{Constraint, Direction, Flex, Layout, Rect},
     style::{Color, Stylize},
+    text::Line,
     widgets::{Block, Padding, Paragraph, Widget},
 };
 
@@ -176,8 +177,8 @@ impl App {
     }
 }
 
-const TILE_SMALL: (u16, u16) = (5, 11);
-const TILE_LARGE: (u16, u16) = (7, 16);
+const TILE_SMALL: (u16, u16) = (7, 12);
+const TILE_LARGE: (u16, u16) = (9, 16);
 const TILE_PADDING: u16 = 1;
 
 enum Size {
@@ -214,6 +215,12 @@ impl Widget for &App {
             .iter()
             .map(|c| c.hint.clone())
             .fold(0, |l, h| cmp::max(l, h.len())) as u16;
+        let layout = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(vec![Constraint::Length(2), Constraint::Min(0)])
+            .split(area);
+        let top_pane = layout[0];
+        let bottom_pane = layout[1];
         let size = if longest_word_length > TILE_LARGE.1 - TILE_PADDING * 2 {
             Size::Custom(longest_word_length + TILE_PADDING * 2)
         } else if longest_word_length > TILE_SMALL.1 - TILE_PADDING * 2 {
@@ -225,14 +232,14 @@ impl Widget for &App {
             .map(|_| Constraint::Length(size.get_width()))
             .collect();
         col_constraints.push(Constraint::Length(longest_hint_length + 4));
-        let row_constraints = (0..4).map(|_| Constraint::Length(size.get_height()));
+        let row_constraints = (0..4).map(|_| Constraint::Length(size.get_height() - 2));
         let horizontal = Layout::horizontal(col_constraints)
             .spacing(2)
             .flex(Flex::Center);
         let vertical = Layout::vertical(row_constraints)
             .spacing(1)
             .flex(Flex::Center);
-        let rows = vertical.split(area);
+        let rows = vertical.split(bottom_pane);
         let cells = rows
             .iter()
             .flat_map(|&row| horizontal.split(row)[0..4].to_vec());
@@ -274,5 +281,13 @@ impl Widget for &App {
                     )))
                     .render(horizontal.split(rows[ri])[4], buf)
             });
+
+        Line::raw(if let Mode::Online(date) = self.mode {
+            date.format("%-d %b %Y").to_string()
+        } else {
+            self.connections.title.clone()
+        })
+        .centered()
+        .render(top_pane, buf);
     }
 }

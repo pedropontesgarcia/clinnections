@@ -65,6 +65,7 @@ pub fn request_web_date(date: DateTime<Local>) -> Connections {
                 solved: false,
             })
             .collect(),
+        title: date_str.to_string(),
         solve_order: vec![],
         seed: 0,
     }

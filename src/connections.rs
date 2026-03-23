@@ -44,6 +44,7 @@ pub struct Connections {
     pub connections: Vec<Connection>,
     #[serde(default)]
     pub solve_order: Vec<usize>,
+    pub title: String,
     pub seed: u64,
 }
 
