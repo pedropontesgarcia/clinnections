@@ -1,6 +1,6 @@
 [package]
 name = "CLInnections"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 authors = ["Pedro Pontes García <pp457@cornell.edu>"]
 license = "MIT"
