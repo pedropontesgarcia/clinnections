@@ -183,7 +183,7 @@ impl Widget for &App {
         let mut col_constraints: Vec<Constraint> = (0..4)
             .map(|_| Constraint::Length(size.get_width()))
             .collect();
-        col_constraints.push(Constraint::Length(longest_hint_length));
+        col_constraints.push(Constraint::Length(longest_hint_length + 4));
         let row_constraints = (0..4).map(|_| Constraint::Length(size.get_height()));
         let horizontal = Layout::horizontal(col_constraints)
             .spacing(2)
