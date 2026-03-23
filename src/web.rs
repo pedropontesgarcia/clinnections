@@ -19,12 +19,12 @@ pub struct Category {
 pub struct Card {
     #[serde(default)]
     pub content: String,
+    #[serde(default)]
     pub image_alt_text: String,
 }
 
 pub fn request_web() -> Connections {
-    let date_str =
-        Local::now().format("%Y-%m-%d");
+    let date_str = Local::now().format("%Y-%m-%d");
     let response: ApiResponse = reqwest::blocking::get(format!(
         "https://www.nytimes.com/svc/connections/v2/{date_str}.json"
     ))

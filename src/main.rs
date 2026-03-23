@@ -2,7 +2,7 @@ pub mod connections;
 pub mod web;
 
 use std::{
-    env,
+    cmp, env,
     fs::File,
     io::{self, Read},
 };
@@ -139,10 +139,44 @@ impl App {
     }
 }
 
+const TILE_SMALL: (u16, u16) = (5, 11);
+const TILE_LARGE: (u16, u16) = (7, 16);
+const TILE_PADDING: u16 = 1;
+
+enum Size {
+    Small,
+    Large,
+}
+
+impl Size {
+    fn get_width(self: &Self) -> u16 {
+        match self {
+            Self::Small => TILE_SMALL.1,
+            Self::Large => TILE_LARGE.1,
+        }
+    }
+
+    fn get_height(self: &Self) -> u16 {
+        match self {
+            Self::Small => TILE_SMALL.0,
+            Self::Large => TILE_LARGE.0,
+        }
+    }
+}
+
 impl Widget for &App {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let mut col_constraints: Vec<Constraint> = (0..4).map(|_| Constraint::Length(16)).collect();
-        col_constraints.push(Constraint::Length(35));
+        let words = self.connections.get_words(self.connections.seed);
+        let longest_length = words.iter().fold(0, |l, (w, _, _)| cmp::max(l, w.len())) as u16;
+        let size = if longest_length > TILE_SMALL.1 - TILE_PADDING * 2 {
+            Size::Large
+        } else {
+            Size::Small
+        };
+        let mut col_constraints: Vec<Constraint> = (0..4)
+            .map(|_| Constraint::Length(size.get_width()))
+            .collect();
+        col_constraints.push(Constraint::Length(size.get_height()));
         let row_constraints = (0..4).map(|_| Constraint::Length(7));
         let horizontal = Layout::horizontal(col_constraints)
             .spacing(2)
@@ -154,7 +188,6 @@ impl Widget for &App {
         let cells = rows
             .iter()
             .flat_map(|&row| horizontal.split(row)[0..4].to_vec());
-        let words = self.connections.get_words(self.connections.seed);
         for (i, cell) in cells.enumerate() {
             let vertical_margin = cell.height.saturating_sub(1) / 2;
             let mut color = if words[i].2 {
