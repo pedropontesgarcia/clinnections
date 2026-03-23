@@ -145,7 +145,7 @@ impl Widget for &App {
         col_constraints.push(Constraint::Length(30));
         let row_constraints = (0..4).map(|_| Constraint::Length(5));
         let horizontal = Layout::horizontal(col_constraints)
-            .spacing(1)
+            .spacing(2)
             .flex(Flex::Center);
         let vertical = Layout::vertical(row_constraints)
             .spacing(1)
