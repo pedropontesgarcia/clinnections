@@ -1,7 +1,15 @@
 [package]
-name = "tui-lab"
+name = "CLInnections"
 version = "0.1.0"
 edition = "2024"
+authors = ["Pedro Pontes García <pp457@cornell.edu>"]
+license = "MIT"
+description = "The daily NYT Connections puzzle, right from your command line!"
+readme = "README.md"
+homepage = "https://github.com/pedropontesgarcia/clinnections"
+repository = "https://github.com/pedropontesgarcia/clinnections"
+keywords = ["cli", "connections", "game", "puzzle"]
+categories = ["games"]
 
 [dependencies]
 chrono = "0.4.44"
