@@ -10,7 +10,8 @@ The daily NYT Connections puzzle, right from your command line!
 - `cargo run -- <puzzle>.json` to play in offline mode.
 
 Use the arrow keys to navigate, `Space` to select a tile, `Enter` to attempt
-a connection, `Q` to quit, and `R` to reset the game.
+a connection, `Q` to quit, and `R` to reset the game. In online mode, use
+`A` and `D` to navigate through the Connections archive.
 
 ## Offline mode
 

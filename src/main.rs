@@ -2,12 +2,12 @@ pub mod connections;
 pub mod web;
 
 use std::{
-    cmp::self,
-    env,
+    cmp, env,
     fs::File,
     io::{self, Read},
 };
 
+use chrono::{DateTime, Days, Local};
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
     DefaultTerminal, Frame,
@@ -17,7 +17,10 @@ use ratatui::{
     widgets::{Block, Padding, Paragraph, Widget},
 };
 
-use crate::{connections::Connections, web::request_web};
+use crate::{
+    connections::Connections,
+    web::{request_web, request_web_date},
+};
 
 fn main() -> io::Result<()> {
     ratatui::run(|terminal| App::default().run(terminal))
@@ -33,10 +36,18 @@ fn load_json(file_path: &str) -> Result<Connections, Box<dyn std::error::Error>>
 }
 
 #[derive(Debug, Default)]
+enum Mode {
+    #[default]
+    Offline,
+    Online(DateTime<Local>),
+}
+
+#[derive(Debug, Default)]
 pub struct App {
     connections: Connections,
     selected: Vec<usize>,
     hovered: usize,
+    mode: Mode,
     exit: bool,
 }
 
@@ -45,8 +56,10 @@ impl App {
         let args: Vec<String> = env::args().collect();
 
         self.connections = if args.len() == 2 {
+            self.mode = Mode::Offline;
             load_json(&args[1]).expect("Could not load level file.")
         } else {
+            self.mode = Mode::Online(Local::now());
             request_web()
         };
 
@@ -76,16 +89,29 @@ impl App {
             return;
         }
         match key_event.code {
-            KeyCode::Char('q') => self.exit(),
-            KeyCode::Char('r') => {
-                self.connections
-                    .connections
-                    .iter_mut()
-                    .for_each(|c| c.solved = false);
-                self.selected.clear();
-                self.hovered = 0;
-                self.connections.solve_order.clear();
-            }
+            KeyCode::Char('q') | KeyCode::Esc => self.exit(),
+            KeyCode::Char('a') => match self.mode {
+                Mode::Offline => {}
+                Mode::Online(date) => {
+                    let new_date = date.checked_sub_days(Days::new(1)).unwrap_or(date);
+                    self.reset();
+                    self.connections = request_web_date(new_date);
+                    self.mode = Mode::Online(new_date);
+                }
+            },
+            KeyCode::Char('d') => match self.mode {
+                Mode::Offline => {}
+                Mode::Online(date) => {
+                    let new_date = date.checked_add_days(Days::new(1)).unwrap_or(date);
+                    let now = Local::now();
+                    if !(new_date > now) {
+                        self.reset();
+                        self.connections = request_web_date(new_date);
+                        self.mode = Mode::Online(new_date);
+                    }
+                }
+            },
+            KeyCode::Char('r') => self.reset(),
             KeyCode::Enter => {
                 if self.selected.len() < 4 {
                     return;
@@ -135,6 +161,16 @@ impl App {
         }
     }
 
+    fn reset(&mut self) {
+        self.connections
+            .connections
+            .iter_mut()
+            .for_each(|c| c.solved = false);
+        self.selected.clear();
+        self.hovered = 0;
+        self.connections.solve_order.clear();
+    }
+
     fn exit(&mut self) {
         self.exit = true;
     }
@@ -147,6 +183,7 @@ const TILE_PADDING: u16 = 1;
 enum Size {
     Small,
     Large,
+    Custom(u16),
 }
 
 impl Size {
@@ -154,6 +191,7 @@ impl Size {
         match self {
             Self::Small => TILE_SMALL.1,
             Self::Large => TILE_LARGE.1,
+            Self::Custom(w) => *w,
         }
     }
 
@@ -161,6 +199,7 @@ impl Size {
         match self {
             Self::Small => TILE_SMALL.0,
             Self::Large => TILE_LARGE.0,
+            Self::Custom(_) => TILE_LARGE.0,
         }
     }
 }
@@ -175,7 +214,9 @@ impl Widget for &App {
             .iter()
             .map(|c| c.hint.clone())
             .fold(0, |l, h| cmp::max(l, h.len())) as u16;
-        let size = if longest_word_length > TILE_SMALL.1 - TILE_PADDING * 2 {
+        let size = if longest_word_length > TILE_LARGE.1 - TILE_PADDING * 2 {
+            Size::Custom(longest_word_length + TILE_PADDING * 2)
+        } else if longest_word_length > TILE_SMALL.1 - TILE_PADDING * 2 {
             Size::Large
         } else {
             Size::Small

@@ -1,21 +1,25 @@
-use chrono::Local;
+use chrono::{DateTime, Local};
 use serde::Deserialize;
 
 use crate::connections::{Connection, ConnectionColor, Connections};
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct ApiResponse {
+    #[serde(default)]
     pub status: String,
+    #[serde(default)]
     pub categories: Vec<Category>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct Category {
+    #[serde(default)]
     pub title: String,
+    #[serde(default)]
     pub cards: Vec<Card>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct Card {
     #[serde(default)]
     pub content: String,
@@ -24,13 +28,21 @@ pub struct Card {
 }
 
 pub fn request_web() -> Connections {
-    let date_str = Local::now().format("%Y-%m-%d");
+    let date = Local::now();
+    request_web_date(date)
+}
+
+pub fn request_web_date(date: DateTime<Local>) -> Connections {
+    let date_str = date.format("%Y-%m-%d");
     let response: ApiResponse = reqwest::blocking::get(format!(
         "https://www.nytimes.com/svc/connections/v2/{date_str}.json"
     ))
     .expect("Could not fetch content from NY Times.")
     .json()
     .expect("Could not parse fetched content from NY Times.");
+    if response.status != "OK" {
+        panic!("API error for date string {}.", date_str);
+    }
     Connections {
         connections: response
             .categories
