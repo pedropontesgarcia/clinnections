@@ -32,6 +32,7 @@ under `examples/`.
         },
         ...
     ],
+    "title": "Title",
     "seed": 42 // Determines the word ordering
 }
 ```
