@@ -2,7 +2,7 @@ pub mod connections;
 pub mod web;
 
 use std::{
-    cmp::{self, max},
+    cmp::self,
     env,
     fs::File,
     io::{self, Read},
