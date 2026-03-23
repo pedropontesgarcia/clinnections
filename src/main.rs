@@ -142,7 +142,7 @@ impl App {
 impl Widget for &App {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let mut col_constraints: Vec<Constraint> = (0..4).map(|_| Constraint::Length(16)).collect();
-        col_constraints.push(Constraint::Length(30));
+        col_constraints.push(Constraint::Length(35));
         let row_constraints = (0..4).map(|_| Constraint::Length(7));
         let horizontal = Layout::horizontal(col_constraints)
             .spacing(2)
