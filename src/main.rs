@@ -2,7 +2,8 @@ pub mod connections;
 pub mod web;
 
 use std::{
-    cmp, env,
+    cmp::{self, max},
+    env,
     fs::File,
     io::{self, Read},
 };
@@ -167,8 +168,14 @@ impl Size {
 impl Widget for &App {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let words = self.connections.get_words(self.connections.seed);
-        let longest_length = words.iter().fold(0, |l, (w, _, _)| cmp::max(l, w.len())) as u16;
-        let size = if longest_length > TILE_SMALL.1 - TILE_PADDING * 2 {
+        let longest_word_length = words.iter().fold(0, |l, (w, _, _)| cmp::max(l, w.len())) as u16;
+        let longest_hint_length = self
+            .connections
+            .connections
+            .iter()
+            .map(|c| c.hint.clone())
+            .fold(0, |l, h| cmp::max(l, h.len())) as u16;
+        let size = if longest_word_length > TILE_SMALL.1 - TILE_PADDING * 2 {
             Size::Large
         } else {
             Size::Small
@@ -176,8 +183,8 @@ impl Widget for &App {
         let mut col_constraints: Vec<Constraint> = (0..4)
             .map(|_| Constraint::Length(size.get_width()))
             .collect();
-        col_constraints.push(Constraint::Length(size.get_height()));
-        let row_constraints = (0..4).map(|_| Constraint::Length(7));
+        col_constraints.push(Constraint::Length(longest_hint_length));
+        let row_constraints = (0..4).map(|_| Constraint::Length(size.get_height()));
         let horizontal = Layout::horizontal(col_constraints)
             .spacing(2)
             .flex(Flex::Center);
